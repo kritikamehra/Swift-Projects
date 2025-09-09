@@ -8,92 +8,96 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State var tasks: [Task] = TaskStore.shared.load()
-    @State var newTask: Bool = false
-    @State var taskTitle: String = ""
-    @State var taskDescription: String = ""
+    @StateObject private var viewModel = TaskViewModel()
+    @State private var newTask: Bool = false
     var body: some View {
         NavigationStack {
             VStack {
-                if tasks.isEmpty {
-                    Text("No tasks")
+                if viewModel.tasks.isEmpty {
+                    VStack(spacing: 12) {
+                        Image(systemName: "square.and.pencil")
+                            .font(.system(size: 50))
+                            .foregroundColor(.gray)
+                        Text("No tasks")
+                            .font(.headline)
+                            .foregroundColor(.secondary)
+                        Text("Tap + to add your first task")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
                 } else {
                     List{
-                        ForEach($tasks) { $task in
-                            HStack {
-//                                Toggle(isOn: $task.isCompleted) {
-//                                    EmptyView()
-//                                }
-//                                .toggleStyle(.checkbox)
-                                Image(systemName: $task.isCompleted.wrappedValue ? "checkmark.square.fill" : "square")
-                                    .font(.title)
-//                                    .foregroundColor(.green)
-                                              .onTapGesture {
-                                                  $task.isCompleted.wrappedValue.toggle()
-                                              }
-                                        
-                                VStack {
-                                    Text("\(task.title)")
-                                    Text("\(task.description)")
-                                        .foregroundColor(.gray)
-                                        .lineLimit(1)
+                        Section(header: Text("Pending")) {
+                            let pendingTasks = viewModel.tasks.filter { !$0.isCompleted }
+                            
+                            if pendingTasks.isEmpty {
+                                HStack {
+                                    Spacer()
+                                    VStack(spacing: 8) {
+                                        Image(systemName: "checkmark.seal.fill")
+                                            .font(.system(size: 40))
+                                            .foregroundColor(.green)
+                                        Text("No pending tasks 🎉")
+                                            .font(.headline)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    Spacer()
+                                }
+                                .padding(.vertical, 20)
+                            } else{
+                                ForEach(pendingTasks) { task in
+                                    TaskRow(task: task, onToggle: { viewModel.toggle(task) },
+                                            onDelete: { viewModel.delete(task)})
                                 }
                             }
-                            .swipeActions(edge: .trailing) {
-                                Button("Delete", role: .destructive) {
-                                    deleteTask(task)
+                        }
+                        
+                        Section(header: Text("Completed")) {
+                            let completedTasks = viewModel.tasks.filter({ $0.isCompleted })
+                            if completedTasks.isEmpty {
+                                HStack {
+                                           Spacer()
+                                           VStack(spacing: 8) {
+                                               Image(systemName: "hourglass")
+                                                   .font(.system(size: 30))
+                                                   .foregroundColor(.orange)
+                                               Text("No completed tasks yet")
+                                                   .font(.subheadline)
+                                                   .foregroundColor(.secondary)
+                                           }
+                                           Spacer()
+                                       }
+                                       .padding(.vertical, 16)
+                            }
+                                else {
+                                ForEach(completedTasks) { task in
+                                    TaskRow(task: task, onToggle: { viewModel.toggle(task) },
+                                            onDelete: { viewModel.delete(task) })
                                 }
                             }
                         }
                     }
                 }
             }
+            .navigationTitle("TO DO")
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing, content: {
-                    Button("", systemImage: "plus") {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
                         newTask = true
+                    } label: {
+                        Image(systemName: "plus")
                     }
+                }
+            }
+            .sheet(isPresented: $newTask) {
+                TaskFormView(onSave: { title, description in
+                    viewModel.addTask(title: title, description: description)
+                    newTask = false
+                }, onCancel: {
+                    newTask = false
                 })
             }
-            .sheet(isPresented: $newTask, content: {
-                NavigationStack {
-                    VStack(alignment: .leading) {
-                        TextField("Task Title", text: $taskTitle)
-                        TextField("Task Description", text: $taskDescription)
-                        Spacer()
-                    }
-                    .toolbar {
-                        ToolbarItem(placement: .confirmationAction) {
-                            Button("Done") {
-                                addNewTask()
-                                newTask = false
-                            }
-                        }
-                    }
-                }
-                .padding()
-            })
-            .navigationTitle("TO DO")
         }
-    }
-    
-    func deleteTask(_ task: Task) {
-        if let index = tasks.firstIndex(where: { $0.id == task.id}) {
-            tasks.remove(at: index)
-            saveTasks()
-        }
-    }
-    
-    func addNewTask() {
-        let task = Task(title: taskTitle, description: taskDescription, isCompleted: false)
-        tasks.append(task)
-        saveTasks()
-        taskTitle = ""
-        taskDescription = ""
-    }
-    
-    func saveTasks() {
-        TaskStore.shared.save(tasks)
     }
 }
 
