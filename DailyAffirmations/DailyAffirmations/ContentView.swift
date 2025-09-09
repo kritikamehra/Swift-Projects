@@ -35,13 +35,24 @@ struct ContentView: View {
                     .ignoresSafeArea()
                 
                 List(affirmations, id:\.self) { affirmation in
-                        HStack {
+                    HStack(alignment: .top, spacing: 12) {
                             Image(systemName: "sun.max.fill")
                                 .foregroundColor(.yellow)
                             Text("\(affirmation)")
+                        
+                                .font(.headline)
                                 .foregroundColor(.white)
-                            
-                    }
+//                                .padding(.vertical, 6)
+                            Spacer()
+                        }
+                    
+                    .padding(5)
+                    .frame(maxWidth: .infinity)
+                    .background(RoundedRectangle(cornerRadius: 10)
+                            .fill(Color.white.opacity(0.2))
+                                .shadow(radius: 3)
+                                
+                        )
                         .listRowBackground(Color.clear)
                 }
                 .scrollContentBackground(.hidden)
@@ -56,6 +67,7 @@ struct ContentView: View {
                         }
                     } label: {
                         Image(systemName: "arrow.clockwise.circle.fill")
+                            .font(.title)
                             .foregroundColor(.white)
                     }
                 })
