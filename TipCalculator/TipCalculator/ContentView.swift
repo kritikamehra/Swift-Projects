@@ -22,13 +22,17 @@ struct ContentView: View {
                 Text("Tip Percentage: ")
                 Spacer()
                 Text("\(tipPercentage)%")
-                Picker("Tip Percentage: ", selection: $tipPercentage) {
-                    ForEach(tips, id: \.self) { option in
-                        Text("\(option)")
+                VStack{
+                    Picker("Tip Percentage: ", selection: $tipPercentage) {
+                        ForEach(tips, id: \.self) { option in
+                            Text("\(option)")
+                        }
                     }
-                }
-                .onChange(of: tipPercentage) {
-                    calculateTip()
+//                    .pickerStyle(.menu)
+                    .labelsHidden()
+                    .onChange(of: tipPercentage) {
+                        calculateTip()
+                    }
                 }
             }
             Text("Total Bill: \(total)")
