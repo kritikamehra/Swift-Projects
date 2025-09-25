@@ -39,8 +39,7 @@ struct MealView: View {
                 if let mealResponse = mealResponse {
                     if let mealList = mealResponse.meals {
                         
-                            List(mealList) { meal in
-                                NavigationLink(destination: MealDetailView(mealId: meal.id)) {
+                            List(mealList) { meal in                                NavigationLink(destination: MealDetailView(mealId: meal.id)) {
                                     VStack{
                                         AsyncImage(url: URL(string: meal.mealThumbnail)) { image in
                                             image.resizable().scaledToFill()

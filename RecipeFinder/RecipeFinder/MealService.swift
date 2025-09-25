@@ -28,7 +28,7 @@ struct MealService {
         }
         
         let (data, _) = try await URLSession.shared.data(from: url)
-        let decodedData = try JSONDecoder().decode(MealDetails.self, from: data)
-        return decodedData
+        let decodedData = try JSONDecoder().decode(MealDetailResponse.self, from: data)
+        return decodedData.meals?.first
     }
 }

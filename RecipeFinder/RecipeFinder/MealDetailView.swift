@@ -15,12 +15,12 @@ struct MealDetailView: View {
         ScrollView {
                if let meal = meal {
                    VStack(alignment: .leading, spacing: 16) {
-//                       AsyncImage(url: URL(string: meal.thumbnail ?? "")) { image in
-//                           image.resizable().scaledToFit()
-//                       } placeholder: {
-//                           ProgressView()
-//                       }
-//                       .frame(maxWidth: .infinity)
+                       AsyncImage(url: URL(string: meal.thumbnail ?? "")) { image in
+                           image.resizable().scaledToFit()
+                       } placeholder: {
+                           ProgressView()
+                       }
+                       .frame(maxWidth: .infinity)
                        
                        Text(meal.name)
                            .font(.largeTitle)
@@ -52,6 +52,7 @@ struct MealDetailView: View {
                    .padding()
                } else {
                    ProgressView("Loading...")
+                   Text(mealId)
                }
            }
            .task {
